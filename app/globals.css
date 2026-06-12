@@ -1,0 +1,59 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #f5f0ff;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+}
+
+/* smooth scrolling */
+html { scroll-behavior: smooth; }
+
+/* range inputs */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(198,182,255,0.3);
+  outline: none;
+  width: 100%;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #9d8ff8;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(157,143,248,0.4);
+}
+input[type=range]::-moz-range-thumb {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #9d8ff8;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(157,143,248,0.4);
+}
+
+/* text inputs */
+input, button { font-family: inherit; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(198,182,255,0.35); border-radius: 2px; }
+
+/* canvas */
+canvas { display: block; }
+
+/* no tap highlight on mobile */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* prevent double-tap zoom on buttons */
+button { touch-action: manipulation; }
