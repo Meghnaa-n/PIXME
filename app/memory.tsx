@@ -356,7 +356,7 @@ export default function MemoryPage({mosaicDataUrl,sourceCount,onBack}:Props){
                 <Sparkles size={15}/>Let your friends try PIXME ✦
               </motion.button>
               <p style={{margin:'4px 0 0',fontSize:11,color:'#b0a8c8',textAlign:'center',lineHeight:1.6}}>
-                💡 To send full quality on WhatsApp: open WhatsApp → attach → <strong>Document</strong> → pick the downloaded file
+                💡 To send full quality on WhatsApp[Mobile]: open WhatsApp → attach → <strong>Document</strong> → pick the downloaded file
               </p>
             </motion.div>
           </motion.div>
