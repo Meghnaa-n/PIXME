@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence, useAnimation } from 'framer-motion'
-import { ArrowLeft, Copy, Download, Check, Share2, Sparkles } from 'lucide-react'
+import { ArrowLeft, Download, Sparkles } from 'lucide-react'
 
 type LetterStage = 'input'|'sealing'|'opening'|'share'
 
@@ -146,7 +146,6 @@ export default function MemoryPage({mosaicDataUrl,sourceCount,onBack}:Props){
   const [customCaption,setCustomCaption]= useState('')
   const [useCustom,    setUseCustom]    = useState(false)
   const [letterStage,  setLetterStage]  = useState<LetterStage>('input')
-  const [copied,       setCopied]       = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -176,21 +175,31 @@ export default function MemoryPage({mosaicDataUrl,sourceCount,onBack}:Props){
       ctx.fillText(`To: ${name}`,Math.round(img.width*0.025),img.height-Math.round(barH*0.5))
       ctx.fillStyle='rgba(100,80,160,0.6)'; ctx.font=`400 ${Math.round(fs*0.7)}px -apple-system,sans-serif`; ctx.textAlign='right'
       ctx.fillText(finalCaption,img.width-Math.round(img.width*0.025),img.height-Math.round(barH*0.5))
-      canvas.toBlob(blob=>{
+      canvas.toBlob(async(blob)=>{
         if(!blob)return
-        const url=URL.createObjectURL(blob); const a=document.createElement('a')
-        a.href=url; a.download=`pixme-for-${name.toLowerCase().replace(/\s+/g,'-')}.png`; a.click()
+        const fileName=`pixme-for-${name.toLowerCase().replace(/\s+/g,'-')}.png`
+        // Use application/octet-stream so WhatsApp receives it as a document (no compression)
+        const docFile=new File([blob],fileName,{type:'application/octet-stream'})
+        // Mobile: Web Share API → triggers native share sheet (WhatsApp, Instagram, etc.)
+        if(navigator.canShare&&navigator.canShare({files:[docFile]})){
+          try{
+            await navigator.share({files:[docFile],title:`A memory for ${name}`})
+            return
+          }catch(e){
+            // user cancelled — fall through to download
+            if((e as Error).name==='AbortError')return
+          }
+        }
+        // Desktop fallback: just download the file
+        const url=URL.createObjectURL(docFile)
+        const a=document.createElement('a')
+        a.href=url; a.download=fileName; a.click()
         URL.revokeObjectURL(url)
       },'image/png')
     }
     img.src=mosaicDataUrl
   }
 
-  const handleCopy=()=>{
-    navigator.clipboard.writeText(window.location.href).catch(()=>{})
-    setCopied(true); setTimeout(()=>setCopied(false),2200)
-  }
-  const handleWhatsApp=()=>window.open(`https://wa.me/?text=${encodeURIComponent(`✨ A memory mosaic made just for you\n${window.location.href}`)}`,'_blank')
 
   return(
     <div style={{width:'100vw',minHeight:'100vh',background:'linear-gradient(135deg,#f5f0ff 0%,#fff5f8 50%,#f0fff8 100%)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',fontFamily:'"SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',color:'#2d1f5e',position:'relative',overflow:'hidden',padding:'60px 16px 32px'}}>
@@ -326,14 +335,6 @@ export default function MemoryPage({mosaicDataUrl,sourceCount,onBack}:Props){
                 onClick={handleDownload}
                 style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'13px',borderRadius:12,border:'none',background:'linear-gradient(135deg,#d4a86a,#a07840)',color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',boxShadow:'0 6px 24px rgba(180,130,60,0.28)',fontFamily:'inherit'}}>
                 <Download size={15}/>Download Memory PNG
-              </motion.button>
-              <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.97}} onClick={handleCopy}
-                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'12px',borderRadius:12,border:'1.5px solid rgba(198,182,255,0.35)',background:'rgba(255,255,255,0.7)',color:copied?'#7cba9a':'#9d8fc0',fontSize:14,fontWeight:600,cursor:'pointer',transition:'color .2s',backdropFilter:'blur(8px)',fontFamily:'inherit'}}>
-                {copied?<Check size={15}/>:<Copy size={15}/>}{copied?'Copied!':'Copy Share Link'}
-              </motion.button>
-              <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.97}} onClick={handleWhatsApp}
-                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'12px',borderRadius:12,border:'1.5px solid rgba(37,211,102,0.3)',background:'rgba(240,255,245,0.65)',color:'rgba(30,160,80,0.9)',fontSize:14,fontWeight:600,cursor:'pointer',backdropFilter:'blur(8px)',fontFamily:'inherit'}}>
-                <Share2 size={15}/>Share on WhatsApp
               </motion.button>
             </motion.div>
           </motion.div>
