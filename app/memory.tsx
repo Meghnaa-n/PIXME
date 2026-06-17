@@ -178,28 +178,30 @@ export default function MemoryPage({mosaicDataUrl,sourceCount,onBack}:Props){
       canvas.toBlob(async(blob)=>{
         if(!blob)return
         const fileName=`pixme-for-${name.toLowerCase().replace(/\s+/g,'-')}.png`
-        // Use application/octet-stream so WhatsApp receives it as a document (no compression)
-        const docFile=new File([blob],fileName,{type:'application/octet-stream'})
-        // Mobile: Web Share API → triggers native share sheet (WhatsApp, Instagram, etc.)
-        if(navigator.canShare&&navigator.canShare({files:[docFile]})){
-          try{
-            await navigator.share({files:[docFile],title:`A memory for ${name}`})
-            return
-          }catch(e){
-            // user cancelled — fall through to download
-            if((e as Error).name==='AbortError')return
-          }
+        const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+        if(isMobile){
+          // Step 1: save file to phone
+          const dlUrl=URL.createObjectURL(blob)
+          const a=document.createElement('a'); a.href=dlUrl; a.download=fileName; a.click()
+          URL.revokeObjectURL(dlUrl)
+          // Step 2: after short delay open share sheet as document (no WhatsApp compression)
+          setTimeout(async()=>{
+            const docFile=new File([blob],fileName,{type:'application/octet-stream'})
+            if(navigator.canShare&&navigator.canShare({files:[docFile]})){
+              try{ await navigator.share({files:[docFile],title:`A memory for ${name}`}) }
+              catch(e){ /* user cancelled, file already saved */ }
+            }
+          },800)
+        } else {
+          // Desktop: normal browser save dialog
+          const url=URL.createObjectURL(blob)
+          const a=document.createElement('a'); a.href=url; a.download=fileName; a.click()
+          URL.revokeObjectURL(url)
         }
-        // Desktop fallback: just download the file
-        const url=URL.createObjectURL(docFile)
-        const a=document.createElement('a')
-        a.href=url; a.download=fileName; a.click()
-        URL.revokeObjectURL(url)
       },'image/png')
     }
     img.src=mosaicDataUrl
   }
-
 
   return(
     <div style={{width:'100vw',minHeight:'100vh',background:'linear-gradient(135deg,#f5f0ff 0%,#fff5f8 50%,#f0fff8 100%)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',fontFamily:'"SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',color:'#2d1f5e',position:'relative',overflow:'hidden',padding:'60px 16px 32px'}}>
