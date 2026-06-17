@@ -203,6 +203,18 @@ export default function MemoryPage({mosaicDataUrl,sourceCount,onBack}:Props){
     img.src=mosaicDataUrl
   }
 
+  const handleInvite=async()=>{
+    const url='https://pixme-ten.vercel.app'
+    const text='✨ I just made a photomosaic with PIXME! Make your own memory mosaic here:'
+    if(navigator.share){
+      try{ await navigator.share({title:'Try PIXME — Memory Mosaic Studio',text,url}) }
+      catch(e){ /* cancelled */ }
+    } else {
+      navigator.clipboard.writeText(`${text} ${url}`).catch(()=>{})
+      alert('Link copied! Share it with your friends.')
+    }
+  }
+
   return(
     <div style={{width:'100vw',minHeight:'100vh',background:'linear-gradient(135deg,#f5f0ff 0%,#fff5f8 50%,#f0fff8 100%)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',fontFamily:'"SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',color:'#2d1f5e',position:'relative',overflow:'hidden',padding:'60px 16px 32px'}}>
 
@@ -338,6 +350,14 @@ export default function MemoryPage({mosaicDataUrl,sourceCount,onBack}:Props){
                 style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'13px',borderRadius:12,border:'none',background:'linear-gradient(135deg,#d4a86a,#a07840)',color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',boxShadow:'0 6px 24px rgba(180,130,60,0.28)',fontFamily:'inherit'}}>
                 <Download size={15}/>Download Memory PNG
               </motion.button>
+              <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.97}}
+                onClick={handleInvite}
+                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'12px',borderRadius:12,border:'1.5px solid rgba(198,182,255,0.35)',background:'rgba(255,255,255,0.7)',color:'#7d6bc0',fontSize:14,fontWeight:600,cursor:'pointer',backdropFilter:'blur(8px)',fontFamily:'inherit'}}>
+                <Sparkles size={15}/>Let your friends try PIXME ✦
+              </motion.button>
+              <p style={{margin:'4px 0 0',fontSize:11,color:'#b0a8c8',textAlign:'center',lineHeight:1.6}}>
+                💡 To send full quality on WhatsApp: open WhatsApp → attach → <strong>Document</strong> → pick the downloaded file
+              </p>
             </motion.div>
           </motion.div>
         )}
