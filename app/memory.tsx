@@ -203,16 +203,10 @@ export default function MemoryPage({mosaicDataUrl,sourceCount,onBack}:Props){
     img.src=mosaicDataUrl
   }
 
-  const handleInvite=async()=>{
+  const handleInvite=()=>{
     const url='https://pixme-ten.vercel.app'
-    const text='✨ I just made a photomosaic with PIXME! Make your own memory mosaic here:'
-    if(navigator.share){
-      try{ await navigator.share({title:'Try PIXME — Memory Mosaic Studio',text,url}) }
-      catch(e){ /* cancelled */ }
-    } else {
-      navigator.clipboard.writeText(`${text} ${url}`).catch(()=>{})
-      alert('Link copied! Share it with your friends.')
-    }
+    const text='✨ I just made a photomosaic with PIXME! Make your own memory mosaic here: '+url
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,'_blank')
   }
 
   return(
